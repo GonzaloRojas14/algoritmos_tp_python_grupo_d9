@@ -1,84 +1,89 @@
-# 🏨 Sistema de Gestión de Hotel
+# Sistema de Gestión de Hotel
 
-**Trabajo Final Integrador — Laboratorio de Python**
-**Algoritmos y Estructuras de Datos | ISI — Ciclo 2026**
-**Comisión:** D9
+## Integrantes del grupo
 
----
+| Nombre | Rol |
+| :--- | :--- |
+| (Completar) | (Completar) |
+| (Completar) | (Completar) |
+| (Completar) | (Completar) |
 
-## 👥 Integrantes del grupo
+## Comisión
 
-| Nombre | Rol principal |
-|--------|--------------|
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-| Gonzalo Rojas | |
+(Completar con el número de comisión)
 
-> ⚠️ *Completar nombres y roles del resto del grupo.*
+## Descripción general del sistema
 
----
+Sistema de gestión hotelera desarrollado en Python que se ejecuta por consola. Permite administrar las operaciones diarias de un hotel:
 
-## 📋 Descripción del sistema
+- **Registro de huéspedes:** Alta, consulta, búsqueda por DNI y baja de huéspedes.
+- **Gestión de habitaciones:** Visualización del estado de las 13 habitaciones del hotel (5 simples, 5 dobles, 3 suites), cambio de estado a mantenimiento.
+- **Check-in:** Asignación de habitaciones a huéspedes registrados, selección de tipo de habitación y cantidad de noches.
+- **Check-out:** Finalización de estadías con emisión de factura, cálculo automático del monto total y liberación de la habitación.
+- **Estadísticas:** Reportes de ocupación general, ocupación por tipo de habitación, ingresos totales y huésped con más noches acumuladas.
+- **Persistencia:** Los datos se guardan automáticamente en archivos `.txt` al cerrar el programa y se cargan al iniciar.
 
-Sistema de gestión hotelera desarrollado en Python que permite administrar reservas y la ocupación de habitaciones de un hotel. El sistema se ejecuta completamente por consola e incluye:
-
-- **Registro de huéspedes** — alta de nuevos clientes con sus datos
-- **Reservas** — asignación de habitaciones con fechas de entrada y salida
-- **Check-in / Check-out** — gestión del ingreso y egreso de huéspedes
-- **Control de disponibilidad** — consulta de habitaciones libres y ocupadas
-- **Cálculo de estadías** — importe total según tipo de habitación y días
-- **Tipos de habitaciones** — simple, doble y suite, con distintas tarifas
-- **Estadísticas de ocupación** — resumen del estado actual del hotel
-
----
-
-## ▶️ Instrucciones de ejecución
-
-### Requisitos
-- Python 3.x instalado ([descargar aquí](https://www.python.org/downloads/))
-
-### Pasos
-
-1. Clonar el repositorio:
-```bash
-git clone https://github.com/GonzaloRojas14/algoritmos_tp_python_grupo_d9.git
-cd algoritmos_tp_python_grupo_d9
-```
-
-2. Ejecutar el sistema:
-```bash
-python hotel.py
-```
-
----
-
-## 📁 Estructura del proyecto
+### Estructura del proyecto
 
 ```
-algoritmos_tp_python_grupo_d9/
-├── hotel.py          # Archivo principal del sistema
-├── README.md         # Este archivo
-└── ...
+gestion_hotel/
+├── main.py              # Punto de entrada y menú principal
+├── habitaciones.py      # Gestión de habitaciones
+├── huespedes.py         # Gestión de huéspedes
+├── reservas.py          # Check-in y check-out
+├── estadisticas.py      # Reportes y estadísticas
+├── validaciones.py      # Validación de entradas
+├── datos.py             # Persistencia en archivos .txt
+├── README.md            # Este archivo
+└── datos/               # Carpeta de datos generados
+    ├── huespedes.txt
+    ├── habitaciones.txt
+    └── reservas.txt
 ```
 
----
+### Conceptos aplicados
 
-## 🤖 Uso de Inteligencia Artificial
+- Estructuras condicionales (`if`, `elif`, `else`)
+- Estructuras repetitivas (`while`, `for`)
+- Funciones con y sin retorno
+- Validaciones de entrada con bucles
+- Contadores y acumuladores
+- Banderas (variables booleanas)
+- Modularización en múltiples archivos
+- Manejo de archivos `.txt` con `with open`
+- Manejo de excepciones con `try/except`
+- Convenciones PEP8
 
-> *Completar a medida que avancen con el desarrollo.*
+## Instrucciones de ejecución
 
-| Herramienta | Para qué se usó |
-|-------------|----------------|
-| Claude (Anthropic) | Apoyo en el diseño inicial del sistema y estructura del proyecto |
-| | |
+### Requisitos previos
 
-**Criterio de uso:** La IA se utilizó como herramienta de apoyo al aprendizaje. Todo el código fue revisado, comprendido y validado por los integrantes del grupo antes de ser incorporado al proyecto.
+- Python 3.x instalado en el sistema.
+- No se requieren bibliotecas externas.
 
----
+### Cómo ejecutar
 
-## 📅 Entrega
+1. Abrir una terminal o consola.
+2. Navegar a la carpeta del proyecto:
+   ```bash
+   cd ruta/a/gestion_hotel
+   ```
+3. Ejecutar el programa:
+   ```bash
+   python main.py
+   ```
+4. Seguir las instrucciones del menú en pantalla.
 
-- **Fecha de entrega digital:** Miércoles 8 de julio de 2026
-- **Coloquio (si aplica):** 13 al 17 de julio de 2026
+### Notas
+
+- En la primera ejecución, el sistema inicializa automáticamente las habitaciones del hotel.
+- Los datos se guardan al seleccionar la opción "Guardar y salir" del menú principal.
+- Los archivos de datos se almacenan en la carpeta `datos/`.
+
+## Uso de Inteligencia Artificial
+
+| Herramienta | Para qué se utilizó | Cómo se utilizó |
+| :--- | :--- | :--- |
+| (Completar, ej: Google Gemini) | (Completar, ej: generar estructura inicial del proyecto) | (Completar, ej: se le proporcionó la consigna y los apuntes de la materia como contexto. Se revisó y adaptó cada módulo generado para asegurar que cumpla con los lineamientos de la cátedra) |
+
+> **Nota:** Todas las soluciones propuestas por la IA fueron revisadas, comprendidas y adaptadas por los integrantes del grupo. Se verificó que el código cumpla con los paradigmas y estructuras enseñadas en la asignatura.

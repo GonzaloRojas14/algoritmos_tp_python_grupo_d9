@@ -1,0 +1,13 @@
+101|simple|25000.0|ocupada
+102|simple|25000.0|disponible
+103|simple|25000.0|disponible
+104|simple|25000.0|disponible
+105|simple|25000.0|disponible
+201|doble|40000.0|disponible
+202|doble|40000.0|disponible
+203|doble|40000.0|disponible
+204|doble|40000.0|disponible
+205|doble|40000.0|disponible
+301|suite|65000.0|disponible
+302|suite|65000.0|disponible
+303|suite|65000.0|disponible
