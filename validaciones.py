@@ -9,7 +9,28 @@
 # Ref: bucles_y_variables_especiales_en_python.md
 # -------------------------------------------------------
 
-TEXTO_CANCELAR = "  (0 para cancelar)"
+import interfaz
+
+
+def _texto_prompt(mensaje, cancelable):
+    """Arma el texto que vera el usuario al pedir un dato,
+    con el indicador de flecha y, si corresponde, la
+    ayuda para cancelar."""
+    texto = interfaz.prompt(mensaje)
+    if cancelable:
+        texto += interfaz.c(" (0=cancelar)", interfaz.GRIS)
+    return texto + ": "
+
+
+def _solo_digitos(texto):
+    """Devuelve solo los digitos de un texto, descartando
+    puntos, espacios o guiones. Asi el usuario puede
+    escribir el DNI o telefono como quiera."""
+    limpio = ""
+    for caracter in texto:
+        if caracter >= "0" and caracter <= "9":
+            limpio += caracter
+    return limpio
 
 
 def pedir_entero(mensaje, minimo, maximo,
@@ -19,16 +40,14 @@ def pedir_entero(mensaje, minimo, maximo,
     (y 0 no esta en el rango), retorna None."""
     valor_valido = False  # bandera
     while not valor_valido:
-        if cancelable:
-            entrada = input(mensaje + TEXTO_CANCELAR
-                            + ": ")
-        else:
-            entrada = input(mensaje)
+        entrada = input(
+            _texto_prompt(mensaje, cancelable)
+        ).strip()
 
         # Verificar cancelacion
         if cancelable and entrada == "0":
             if minimo > 0 or maximo < 0:
-                print("  Operacion cancelada.")
+                interfaz.info("Operacion cancelada.")
                 return None
 
         # Verificar que sea un numero entero
@@ -50,14 +69,14 @@ def pedir_entero(mensaje, minimo, maximo,
                     i += 1
 
         if not es_numero:
-            print("  Error: debe ingresar un numero"
-                  " entero.")
+            interfaz.error("Debe ingresar un numero"
+                           " entero.")
         else:
             valor = int(entrada)
             if valor < minimo or valor > maximo:
-                print("  Error: el valor debe estar"
-                      " entre " + str(minimo) + " y "
-                      + str(maximo) + ".")
+                interfaz.error("El valor debe estar entre "
+                               + str(minimo) + " y "
+                               + str(maximo) + ".")
             else:
                 valor_valido = True
 
@@ -69,25 +88,26 @@ def pedir_flotante(mensaje, minimo, maximo):
     Ingresando '0' cancela si 0 no esta en rango."""
     valor_valido = False  # bandera
     while not valor_valido:
-        entrada = input(mensaje + TEXTO_CANCELAR
-                        + ": ")
+        entrada = input(
+            _texto_prompt(mensaje, True)
+        ).strip().replace(",", ".")
 
         # Verificar cancelacion
         if entrada == "0":
             if minimo > 0 or maximo < 0:
-                print("  Operacion cancelada.")
+                interfaz.info("Operacion cancelada.")
                 return None
 
         try:
             valor = float(entrada)
         except ValueError:
-            print("  Error: debe ingresar un numero.")
+            interfaz.error("Debe ingresar un numero.")
             continue
 
         if valor < minimo or valor > maximo:
-            print("  Error: el valor debe estar entre "
-                  + str(minimo) + " y " + str(maximo)
-                  + ".")
+            interfaz.error("El valor debe estar entre "
+                           + str(minimo) + " y "
+                           + str(maximo) + ".")
         else:
             valor_valido = True
 
@@ -99,34 +119,23 @@ def pedir_texto(mensaje, largo_min=1, largo_max=50):
     Ingresando '0' cancela la operacion."""
     valido = False  # bandera
     while not valido:
-        entrada = input(mensaje + TEXTO_CANCELAR
-                        + ": ")
+        entrada = input(_texto_prompt(mensaje, True))
 
         # Verificar cancelacion
         if entrada == "0":
-            print("  Operacion cancelada.")
+            interfaz.info("Operacion cancelada.")
             return None
 
-        # Eliminar espacios al inicio y fin
-        texto = ""
-        inicio = 0
-        fin = len(entrada) - 1
-        while (inicio < len(entrada)
-               and entrada[inicio] == " "):
-            inicio += 1
-        while fin >= 0 and entrada[fin] == " ":
-            fin -= 1
-        i = inicio
-        while i <= fin:
-            texto += entrada[i]
-            i += 1
+        # Eliminar espacios al inicio y al final
+        texto = entrada.strip()
 
         if len(texto) < largo_min:
-            print("  Error: debe ingresar al menos "
-                  + str(largo_min) + " caracter(es).")
+            interfaz.error("Debe ingresar al menos "
+                           + str(largo_min)
+                           + " caracter(es).")
         elif len(texto) > largo_max:
-            print("  Error: maximo " + str(largo_max)
-                  + " caracteres.")
+            interfaz.error("Maximo " + str(largo_max)
+                           + " caracteres.")
         else:
             valido = True
 
@@ -134,86 +143,74 @@ def pedir_texto(mensaje, largo_min=1, largo_max=50):
 
 
 def pedir_dni(mensaje):
-    """Solicita un DNI de exactamente 8 digitos.
+    """Solicita un DNI de exactamente 8 digitos. Acepta
+    puntos o espacios (12.345.678) y los descarta.
     Ingresando '0' cancela la operacion."""
     valido = False  # bandera
     while not valido:
-        entrada = input(mensaje + TEXTO_CANCELAR
-                        + ": ")
+        entrada = input(_texto_prompt(mensaje, True)).strip()
 
         # Verificar cancelacion
         if entrada == "0":
-            print("  Operacion cancelada.")
+            interfaz.info("Operacion cancelada.")
             return None
 
-        if len(entrada) != 8:
-            print("  Error: el DNI debe tener"
-                  " exactamente 8 digitos.")
-        else:
-            es_numerico = True
-            i = 0
-            while i < len(entrada) and es_numerico:
-                if (entrada[i] < "0"
-                        or entrada[i] > "9"):
-                    es_numerico = False
-                i += 1
-            if not es_numerico:
-                print("  Error: el DNI debe contener"
-                      " solo digitos.")
-            else:
-                valido = True
+        # Quedarse solo con los digitos
+        dni = _solo_digitos(entrada)
 
-    return entrada
+        if len(dni) != 8:
+            interfaz.error("El DNI debe tener exactamente"
+                           " 8 digitos.")
+        else:
+            valido = True
+
+    return dni
 
 
 def pedir_telefono(mensaje):
     """Solicita un telefono de entre 8 y 15 digitos.
+    Acepta espacios, guiones o '+' y los descarta.
     Ingresando '0' cancela la operacion."""
     valido = False  # bandera
     while not valido:
-        entrada = input(mensaje + TEXTO_CANCELAR
-                        + ": ")
+        entrada = input(_texto_prompt(mensaje, True)).strip()
 
         # Verificar cancelacion
         if entrada == "0":
-            print("  Operacion cancelada.")
+            interfaz.info("Operacion cancelada.")
             return None
 
-        if len(entrada) < 8 or len(entrada) > 15:
-            print("  Error: el telefono debe tener"
-                  " entre 8 y 15 digitos.")
-        else:
-            es_numerico = True
-            i = 0
-            while i < len(entrada) and es_numerico:
-                if (entrada[i] < "0"
-                        or entrada[i] > "9"):
-                    es_numerico = False
-                i += 1
-            if not es_numerico:
-                print("  Error: el telefono debe"
-                      " contener solo digitos.")
-            else:
-                valido = True
+        # Quedarse solo con los digitos
+        telefono = _solo_digitos(entrada)
 
-    return entrada
+        if len(telefono) < 8 or len(telefono) > 15:
+            interfaz.error("El telefono debe tener entre"
+                           " 8 y 15 digitos.")
+        else:
+            valido = True
+
+    return telefono
 
 
 def confirmar_accion(mensaje):
     """Pide confirmacion S/N. Retorna True o False.
-    No necesita cancelacion porque N ya cancela."""
+    Acepta s/si/n/no en mayuscula o minuscula."""
     valido = False  # bandera
     respuesta = False
     while not valido:
-        entrada = input(mensaje + " (S/N): ")
-        if entrada == "S" or entrada == "s":
+        entrada = input(
+            interfaz.prompt(mensaje)
+            + interfaz.c(" (S/N)", interfaz.GRIS) + ": "
+        ).strip().lower()
+
+        if entrada == "s" or entrada == "si":
             respuesta = True
             valido = True
-        elif (entrada == "N" or entrada == "n"
+        elif (entrada == "n" or entrada == "no"
               or entrada == "0"):
             respuesta = False
             valido = True
         else:
-            print("  Error: ingrese S o N.")
+            interfaz.error("Ingrese S (si) o N (no).")
 
     return respuesta

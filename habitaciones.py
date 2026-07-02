@@ -8,6 +8,8 @@
 # Ref: estructuras_de_control_y_condicionales_en_python.md
 # -------------------------------------------------------
 
+import interfaz
+
 
 # Constantes de configuracion (por convencion en
 # mayusculas, como indica la teoria)
@@ -55,64 +57,79 @@ def inicializar_habitaciones():
     return lista_habitaciones
 
 
+def _color_por_estado(estado):
+    """Devuelve el codigo de color asociado a un estado
+    de habitacion, para resaltar las filas de la tabla."""
+    if estado == "disponible":
+        return interfaz.VERDE
+    elif estado == "ocupada":
+        return interfaz.ROJO
+    else:
+        return interfaz.AMARILLO
+
+
 def mostrar_habitaciones(lista_hab):
-    """Muestra todas las habitaciones con su estado.
-    Usa for y condicional para formato visual."""
-    print("\n" + "=" * 50)
-    print("        LISTADO DE HABITACIONES")
-    print("=" * 50)
-    print("{:<10} {:<10} {:<15} {:<15}".format(
-        "Numero", "Tipo", "Precio/noche", "Estado"))
-    print("-" * 50)
+    """Muestra todas las habitaciones con su estado en
+    una tabla, coloreando cada fila segun su estado."""
+    interfaz.subtitulo("LISTADO DE HABITACIONES")
+
+    anchos = [10, 10, 14, 16]
+    print()
+    interfaz.tabla_borde_superior(anchos)
+    interfaz.tabla_encabezado(
+        ["Numero", "Tipo", "Precio", "Estado"], anchos
+    )
+    interfaz.tabla_borde_medio(anchos)
 
     for hab in lista_hab:
-        # Indicador visual segun estado
-        if hab["estado"] == "disponible":
-            indicador = "[+]"
-        elif hab["estado"] == "ocupada":
-            indicador = "[X]"
-        else:
-            indicador = "[!]"
-
-        print("{:<10} {:<10} ${:<14} {} {}".format(
+        estado_texto = (interfaz.SIMBOLO_PUNTO + " "
+                        + hab["estado"])
+        interfaz.tabla_fila([
             hab["numero"],
             hab["tipo"],
-            int(hab["precio_noche"]),
-            indicador,
-            hab["estado"]))
+            "$" + str(int(hab["precio_noche"])),
+            estado_texto
+        ], anchos, _color_por_estado(hab["estado"]))
 
-    print("-" * 50)
+    interfaz.tabla_borde_inferior(anchos)
+    print()
 
 
 def mostrar_disponibles(lista_hab):
-    """Muestra solo las habitaciones disponibles.
-    Usa bandera y contador."""
+    """Muestra solo las habitaciones disponibles en una
+    tabla. Usa bandera y contador."""
     hay_disponibles = False  # bandera
     cont_disponibles = 0  # contador
 
-    print("\n" + "=" * 50)
-    print("      HABITACIONES DISPONIBLES")
-    print("=" * 50)
-    print("{:<10} {:<10} {:<15}".format(
-        "Numero", "Tipo", "Precio/noche"))
-    print("-" * 50)
+    interfaz.subtitulo("HABITACIONES DISPONIBLES")
+
+    anchos = [10, 12, 16]
+    print()
+    interfaz.tabla_borde_superior(anchos)
+    interfaz.tabla_encabezado(
+        ["Numero", "Tipo", "Precio/noche"], anchos
+    )
+    interfaz.tabla_borde_medio(anchos)
 
     for hab in lista_hab:
         if hab["estado"] == "disponible":
             hay_disponibles = True
             cont_disponibles += 1
-            print("{:<10} {:<10} ${:<14}".format(
+            interfaz.tabla_fila([
                 hab["numero"],
                 hab["tipo"],
-                int(hab["precio_noche"])))
+                "$" + str(int(hab["precio_noche"]))
+            ], anchos, interfaz.VERDE)
 
-    print("-" * 50)
+    interfaz.tabla_borde_inferior(anchos)
 
     if not hay_disponibles:
-        print("  No hay habitaciones disponibles.")
+        interfaz.advertencia("No hay habitaciones"
+                             " disponibles.")
     else:
         print("  Total disponibles: "
-              + str(cont_disponibles))
+              + interfaz.c(str(cont_disponibles),
+                           interfaz.NEGRITA))
 
     print()
     return cont_disponibles
@@ -124,23 +141,25 @@ def mostrar_disponibles_por_tipo(lista_hab, tipo):
     hay_disponibles = False  # bandera
     cont = 0  # contador
 
-    print("\n  Habitaciones '" + tipo
-          + "' disponibles:")
-    print("  " + "-" * 35)
+    interfaz.seccion("Habitaciones '" + tipo
+                     + "' disponibles")
 
     for hab in lista_hab:
         if hab["tipo"] == tipo:
             if hab["estado"] == "disponible":
                 hay_disponibles = True
                 cont += 1
-                print("    Nro " + str(hab["numero"])
-                      + " - $"
-                      + str(int(hab["precio_noche"]))
-                      + "/noche")
+                interfaz.item(
+                    "Nro " + interfaz.c(
+                        str(hab["numero"]),
+                        interfaz.NEGRITA),
+                    "$" + str(int(hab["precio_noche"]))
+                    + "/noche"
+                )
 
     if not hay_disponibles:
-        print("    No hay habitaciones '" + tipo
-              + "' disponibles.")
+        interfaz.advertencia("No hay habitaciones '"
+                             + tipo + "' disponibles.")
 
     return cont
 
@@ -177,13 +196,16 @@ def cambiar_estado(lista_hab, numero, nuevo_estado):
         i += 1
 
     if not estado_valido:
-        print("  Error: estado no valido.")
+        interfaz.error("Estado no valido.")
         return False
 
     # Buscar y modificar
     hab = buscar_habitacion(lista_hab, numero)
     if hab is None:
-        print("  Error: habitacion no encontrada.")
+        interfaz.error("La habitacion " + str(numero)
+                       + " no existe.")
+        interfaz.info("Numeros validos: "
+                      + texto_numeros_habitacion(lista_hab))
         return False
 
     hab["estado"] = nuevo_estado
@@ -197,3 +219,18 @@ def obtener_numeros_validos(lista_hab):
     for hab in lista_hab:
         numeros.append(hab["numero"])
     return numeros
+
+
+def texto_numeros_habitacion(lista_hab):
+    """Retorna un texto con los numeros de habitacion
+    existentes separados por coma. Sirve para ayudar
+    al usuario cuando ingresa un numero inexistente."""
+    numeros = obtener_numeros_validos(lista_hab)
+    texto = ""
+    i = 0
+    while i < len(numeros):
+        texto += str(numeros[i])
+        if i < len(numeros) - 1:
+            texto += ", "
+        i += 1
+    return texto

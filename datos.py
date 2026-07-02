@@ -20,6 +20,11 @@ ARCHIVO_HABITACIONES = os.path.join(
 )
 ARCHIVO_RESERVAS = os.path.join(RUTA_DATOS, "reservas.txt")
 
+# Asegura que la carpeta "datos" exista. Evita un error
+# al guardar si la carpeta fue borrada o el proyecto se
+# descargo sin ella (primera ejecucion).
+os.makedirs(RUTA_DATOS, exist_ok=True)
+
 
 # ---- Huespedes ----
 

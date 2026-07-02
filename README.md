@@ -33,6 +33,7 @@ gestion_hotel/
 ├── reservas.py          # Check-in y check-out
 ├── estadisticas.py      # Reportes y estadísticas
 ├── validaciones.py      # Validación de entradas
+├── interfaz.py          # Presentación visual (colores, cuadros, tablas)
 ├── datos.py             # Persistencia en archivos .txt
 ├── README.md            # Este archivo
 └── datos/               # Carpeta de datos generados

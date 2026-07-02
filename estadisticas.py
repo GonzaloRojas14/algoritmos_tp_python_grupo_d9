@@ -8,6 +8,7 @@
 # Ref: gestion_de_archivos_y_registros.md
 # -------------------------------------------------------
 
+import interfaz
 from huespedes import buscar_huesped
 
 
@@ -35,21 +36,18 @@ def reporte_ocupacion(lista_hab):
     else:
         porcentaje_ocupacion = 0.0
 
-    print("\n" + "=" * 45)
-    print("      REPORTE DE OCUPACION")
-    print("=" * 45)
-    print("  Total de habitaciones: "
-          + str(total_hab))
-    print("  Disponibles:           "
-          + str(cont_disponibles))
-    print("  Ocupadas:              "
-          + str(cont_ocupadas))
-    print("  En mantenimiento:      "
-          + str(cont_mantenimiento))
-    print("-" * 45)
-    print("  Porcentaje de ocupacion: "
-          + str(round(porcentaje_ocupacion, 1)) + "%")
-    print("=" * 45)
+    interfaz.subtitulo("REPORTE DE OCUPACION")
+    print()
+    interfaz.item("Total de habitaciones", str(total_hab))
+    interfaz.item("Disponibles", str(cont_disponibles))
+    interfaz.item("Ocupadas", str(cont_ocupadas))
+    interfaz.item("En mantenimiento",
+                  str(cont_mantenimiento))
+    print()
+    print("  " + interfaz.c(
+        "Porcentaje de ocupacion: "
+        + str(round(porcentaje_ocupacion, 1)) + "%",
+        interfaz.CYAN, interfaz.NEGRITA))
     print()
 
 
@@ -77,14 +75,14 @@ def ingresos_totales(lista_reservas, lista_hab):
                          * reserva["noches"])
                 total_ingresos += monto  # acumulador
 
-    print("\n" + "=" * 45)
-    print("      REPORTE DE INGRESOS")
-    print("=" * 45)
-    print("  Reservas finalizadas: "
-          + str(cont_finalizadas))
-    print("  Ingresos totales:     $"
-          + str(int(total_ingresos)))
-    print("=" * 45)
+    interfaz.subtitulo("REPORTE DE INGRESOS")
+    print()
+    interfaz.item("Reservas finalizadas",
+                  str(cont_finalizadas))
+    print()
+    print("  " + interfaz.c(
+        "Ingresos totales: $" + str(int(total_ingresos)),
+        interfaz.VERDE, interfaz.NEGRITA))
     print()
 
 
@@ -125,58 +123,61 @@ def ocupacion_por_tipo(lista_hab):
             elif hab["estado"] == "ocupada":
                 cont_suite_ocup += 1
 
-    print("\n" + "=" * 55)
-    print("      OCUPACION POR TIPO DE HABITACION")
-    print("=" * 55)
-    print("{:<12} {:<10} {:<10} {:<10} {:<10}".format(
-        "Tipo", "Total", "Disp.", "Ocup.", "% Ocup."))
-    print("-" * 55)
+    interfaz.subtitulo("OCUPACION POR TIPO DE HABITACION")
+
+    anchos = [12, 9, 9, 9, 10]
+    print()
+    interfaz.tabla_borde_superior(anchos)
+    interfaz.tabla_encabezado(
+        ["Tipo", "Total", "Disp.", "Ocup.", "% Ocup."],
+        anchos
+    )
+    interfaz.tabla_borde_medio(anchos)
 
     # Simple
     if cont_simple_total > 0:
         porc_simple = (
-            (cont_simple_ocup * 100)
-            / cont_simple_total
+            (cont_simple_ocup * 100) / cont_simple_total
         )
     else:
         porc_simple = 0.0
-    print("{:<12} {:<10} {:<10} {:<10} {:<10}".format(
-        "Simple", cont_simple_total,
-        cont_simple_disp, cont_simple_ocup,
-        str(round(porc_simple, 1)) + "%"))
+    interfaz.tabla_fila([
+        "Simple", cont_simple_total, cont_simple_disp,
+        cont_simple_ocup,
+        str(round(porc_simple, 1)) + "%"
+    ], anchos)
 
     # Doble
     if cont_doble_total > 0:
         porc_doble = (
-            (cont_doble_ocup * 100)
-            / cont_doble_total
+            (cont_doble_ocup * 100) / cont_doble_total
         )
     else:
         porc_doble = 0.0
-    print("{:<12} {:<10} {:<10} {:<10} {:<10}".format(
-        "Doble", cont_doble_total,
-        cont_doble_disp, cont_doble_ocup,
-        str(round(porc_doble, 1)) + "%"))
+    interfaz.tabla_fila([
+        "Doble", cont_doble_total, cont_doble_disp,
+        cont_doble_ocup,
+        str(round(porc_doble, 1)) + "%"
+    ], anchos)
 
     # Suite
     if cont_suite_total > 0:
         porc_suite = (
-            (cont_suite_ocup * 100)
-            / cont_suite_total
+            (cont_suite_ocup * 100) / cont_suite_total
         )
     else:
         porc_suite = 0.0
-    print("{:<12} {:<10} {:<10} {:<10} {:<10}".format(
-        "Suite", cont_suite_total,
-        cont_suite_disp, cont_suite_ocup,
-        str(round(porc_suite, 1)) + "%"))
+    interfaz.tabla_fila([
+        "Suite", cont_suite_total, cont_suite_disp,
+        cont_suite_ocup,
+        str(round(porc_suite, 1)) + "%"
+    ], anchos)
 
-    print("-" * 55)
+    interfaz.tabla_borde_inferior(anchos)
     print()
 
 
-def huesped_mas_noches(lista_reservas,
-                       lista_huespedes):
+def huesped_mas_noches(lista_reservas, lista_huespedes):
     """Busca el huesped con mayor cantidad de noches
     acumuladas. Usa patron de busqueda de maximo."""
     # Primero, acumular noches por DNI
@@ -204,8 +205,11 @@ def huesped_mas_noches(lista_reservas,
             )
 
     if len(noches_por_huesped) == 0:
-        print("\n  No hay datos de reservas para"
-              " analizar.")
+        interfaz.subtitulo("HUESPED CON MAS NOCHES")
+        print()
+        interfaz.info("No hay datos de reservas para"
+                      " analizar.")
+        print()
         return
 
     # Buscar el maximo (patron de maximo)
@@ -226,11 +230,9 @@ def huesped_mas_noches(lista_reservas,
     else:
         nombre = "(desconocido)"
 
-    print("\n" + "=" * 45)
-    print("    HUESPED CON MAS NOCHES")
-    print("=" * 45)
-    print("  Nombre: " + nombre)
-    print("  DNI: " + max_dni)
-    print("  Total de noches: " + str(max_noches))
-    print("=" * 45)
+    interfaz.subtitulo("HUESPED CON MAS NOCHES")
+    print()
+    interfaz.item("Nombre", nombre)
+    interfaz.item("DNI", max_dni)
+    interfaz.item("Total de noches", str(max_noches))
     print()

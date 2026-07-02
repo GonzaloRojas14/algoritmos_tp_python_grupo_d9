@@ -8,6 +8,7 @@
 # Ref: gestion_de_archivos_y_registros.md
 # -------------------------------------------------------
 
+import interfaz
 from validaciones import pedir_dni
 from validaciones import pedir_texto
 from validaciones import pedir_telefono
@@ -18,11 +19,10 @@ def registrar_huesped(lista_huespedes):
     """Solicita datos y agrega un nuevo huesped.
     Verifica que el DNI no este duplicado usando
     busqueda con while + bandera."""
-    print("\n" + "=" * 40)
-    print("    REGISTRAR NUEVO HUESPED")
-    print("=" * 40)
+    interfaz.subtitulo("REGISTRAR NUEVO HUESPED")
+    print()
 
-    dni = pedir_dni("  DNI (8 digitos)")
+    dni = pedir_dni("DNI (8 digitos)")
 
     # Verificar cancelacion
     if dni is None:
@@ -33,21 +33,17 @@ def registrar_huesped(lista_huespedes):
         lista_huespedes, dni
     )
     if huesped_existente is not None:
-        print("  Error: ya existe un huesped con"
-              " DNI " + dni + ".")
-        print("  Nombre: "
-              + huesped_existente["nombre"])
+        interfaz.error("Ya existe un huesped con DNI "
+                       + dni + ".")
+        interfaz.item("Nombre",
+                      huesped_existente["nombre"])
         return False
 
-    nombre = pedir_texto(
-        "  Nombre completo", 2, 50
-    )
+    nombre = pedir_texto("Nombre completo", 2, 50)
     if nombre is None:
         return False
 
-    telefono = pedir_telefono(
-        "  Telefono (8-15 digitos)"
-    )
+    telefono = pedir_telefono("Telefono (8-15 digitos)")
     if telefono is None:
         return False
 
@@ -59,39 +55,45 @@ def registrar_huesped(lista_huespedes):
     }
 
     lista_huespedes.append(nuevo_huesped)
-    print("\n  Huesped registrado exitosamente.")
-    print("  DNI: " + dni)
-    print("  Nombre: " + nombre)
+    print()
+    interfaz.exito("Huesped registrado exitosamente.")
+    interfaz.item("DNI", dni)
+    interfaz.item("Nombre", nombre)
     return True
 
 
 def mostrar_huespedes(lista_huespedes):
-    """Recorre la lista con for e imprime cada huesped.
-    Usa contador para numerar."""
-    print("\n" + "=" * 50)
-    print("        LISTADO DE HUESPEDES")
-    print("=" * 50)
+    """Recorre la lista con for e imprime cada huesped
+    en una tabla. Usa contador para numerar."""
+    interfaz.subtitulo("LISTADO DE HUESPEDES")
 
     if len(lista_huespedes) == 0:
-        print("  No hay huespedes registrados.")
+        print()
+        interfaz.info("No hay huespedes registrados.")
         print()
         return
 
-    cont = 0  # contador para numerar
-    print("{:<5} {:<12} {:<25} {:<15}".format(
-        "#", "DNI", "Nombre", "Telefono"))
-    print("-" * 50)
+    anchos = [5, 13, 27, 16]
+    print()
+    interfaz.tabla_borde_superior(anchos)
+    interfaz.tabla_encabezado(
+        ["#", "DNI", "Nombre", "Telefono"], anchos
+    )
+    interfaz.tabla_borde_medio(anchos)
 
+    cont = 0  # contador para numerar
     for huesped in lista_huespedes:
         cont += 1  # incremento constante (contador)
-        print("{:<5} {:<12} {:<25} {:<15}".format(
+        interfaz.tabla_fila([
             cont,
             huesped["dni"],
             huesped["nombre"],
-            huesped["telefono"]))
+            huesped["telefono"]
+        ], anchos)
 
-    print("-" * 50)
-    print("  Total de huespedes: " + str(cont))
+    interfaz.tabla_borde_inferior(anchos)
+    print("  Total de huespedes: "
+          + interfaz.c(str(cont), interfaz.NEGRITA))
     print()
 
 
@@ -114,11 +116,10 @@ def buscar_huesped(lista_huespedes, dni):
 def eliminar_huesped(lista_huespedes, lista_reservas):
     """Busca y elimina un huesped. Valida que no tenga
     reserva activa antes de borrar."""
-    print("\n" + "=" * 40)
-    print("      ELIMINAR HUESPED")
-    print("=" * 40)
+    interfaz.subtitulo("ELIMINAR HUESPED")
+    print()
 
-    dni = pedir_dni("  DNI del huesped a eliminar")
+    dni = pedir_dni("DNI del huesped a eliminar")
 
     # Verificar cancelacion
     if dni is None:
@@ -126,8 +127,8 @@ def eliminar_huesped(lista_huespedes, lista_reservas):
 
     huesped = buscar_huesped(lista_huespedes, dni)
     if huesped is None:
-        print("  Error: no se encontro huesped con"
-              " DNI " + dni + ".")
+        interfaz.error("No se encontro huesped con DNI "
+                       + dni + ".")
         return False
 
     # Verificar que no tenga reserva activa
@@ -140,22 +141,21 @@ def eliminar_huesped(lista_huespedes, lista_reservas):
         i += 1
 
     if tiene_reserva_activa:
-        print("  Error: el huesped tiene una reserva"
-              " activa.")
-        print("  Debe realizar el check-out antes de"
-              " eliminarlo.")
+        interfaz.error("El huesped tiene una reserva"
+                       " activa.")
+        interfaz.advertencia("Debe realizar el check-out"
+                             " antes de eliminarlo.")
         return False
 
-    print("  Huesped encontrado: "
-          + huesped["nombre"])
+    interfaz.item("Huesped encontrado", huesped["nombre"])
     confirmado = confirmar_accion(
-        "  Confirmar eliminacion?"
+        "Confirmar eliminacion?"
     )
 
     if confirmado:
         lista_huespedes.remove(huesped)
-        print("  Huesped eliminado exitosamente.")
+        interfaz.exito("Huesped eliminado exitosamente.")
         return True
     else:
-        print("  Operacion cancelada.")
+        interfaz.info("Operacion cancelada.")
         return False

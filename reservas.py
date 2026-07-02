@@ -7,6 +7,7 @@
 # Ref: acciones_y_operadores_en_algoritmos.md
 # -------------------------------------------------------
 
+import interfaz
 from validaciones import pedir_entero
 from validaciones import pedir_dni
 from validaciones import confirmar_accion
@@ -15,6 +16,7 @@ from habitaciones import mostrar_disponibles
 from habitaciones import mostrar_disponibles_por_tipo
 from habitaciones import buscar_habitacion
 from habitaciones import cambiar_estado
+from habitaciones import texto_numeros_habitacion
 
 
 def generar_id_reserva(lista_reservas):
@@ -32,12 +34,11 @@ def hacer_checkin(lista_reservas, lista_huespedes,
     """Check-in: registra una nueva reserva.
     Verifica huesped, muestra hab. disponibles,
     asigna habitacion y cantidad de noches."""
-    print("\n" + "=" * 50)
-    print("           CHECK-IN")
-    print("=" * 50)
+    interfaz.titulo("CHECK-IN")
 
     # 1. Solicitar y verificar huesped
-    dni = pedir_dni("  DNI del huesped")
+    print()
+    dni = pedir_dni("DNI del huesped")
 
     # Verificar cancelacion
     if dni is None:
@@ -46,13 +47,13 @@ def hacer_checkin(lista_reservas, lista_huespedes,
     huesped = buscar_huesped(lista_huespedes, dni)
 
     if huesped is None:
-        print("\n  Error: no se encontro huesped con"
-              " DNI " + dni + ".")
-        print("  Debe registrar al huesped primero"
-              " (opcion 1 del menu).")
+        interfaz.error("No se encontro huesped con DNI "
+                       + dni + ".")
+        interfaz.advertencia("Debe registrar al huesped"
+                             " primero (menu 1).")
         return False
 
-    print("  Huesped: " + huesped["nombre"])
+    interfaz.item("Huesped", huesped["nombre"])
 
     # 2. Verificar que no tenga reserva activa
     tiene_activa = False  # bandera
@@ -64,29 +65,29 @@ def hacer_checkin(lista_reservas, lista_huespedes,
         i += 1
 
     if tiene_activa:
-        print("\n  Error: el huesped ya tiene una"
-              " reserva activa.")
-        print("  Debe hacer check-out antes de"
-              " registrar otra.")
+        interfaz.error("El huesped ya tiene una reserva"
+                       " activa.")
+        interfaz.advertencia("Debe hacer check-out antes"
+                             " de registrar otra.")
         return False
 
     # 3. Mostrar habitaciones disponibles
     cant_disponibles = mostrar_disponibles(lista_hab)
 
     if cant_disponibles == 0:
-        print("  No se puede realizar el check-in.")
+        interfaz.error("No se puede realizar el check-in.")
         return False
 
     # 4. Elegir tipo de habitacion
-    print("\n  Tipos de habitacion:")
-    print("    1. Simple  - $25.000/noche")
-    print("    2. Doble   - $40.000/noche")
-    print("    3. Suite   - $65.000/noche")
-    print("    4. Ver todas las disponibles")
+    interfaz.seccion("Tipos de habitacion")
+    interfaz.item("1. Simple", "$25.000/noche")
+    interfaz.item("2. Doble", "$40.000/noche")
+    interfaz.item("3. Suite", "$65.000/noche")
+    interfaz.item("4. Ver todas las disponibles")
+    print()
 
-    opcion_tipo = pedir_entero(
-        "  Seleccione tipo (1-4)", 1, 4
-    )
+    opcion_tipo = pedir_entero("Seleccione tipo (1-4)",
+                               1, 4)
 
     # Verificar cancelacion
     if opcion_tipo is None:
@@ -107,16 +108,16 @@ def hacer_checkin(lista_reservas, lista_huespedes,
             lista_hab, tipo_elegido
         )
         if cant == 0:
-            print("  No hay habitaciones de ese tipo"
-                  " disponibles.")
+            interfaz.error("No hay habitaciones de ese"
+                           " tipo disponibles.")
             return False
 
     # 5. Solicitar numero de habitacion
     habitacion_valida = False  # bandera
     while not habitacion_valida:
-        num_hab = pedir_entero(
-            "\n  Numero de habitacion", 100, 399
-        )
+        print()
+        num_hab = pedir_entero("Numero de habitacion",
+                               100, 399)
 
         # Verificar cancelacion
         if num_hab is None:
@@ -125,29 +126,30 @@ def hacer_checkin(lista_reservas, lista_huespedes,
         hab = buscar_habitacion(lista_hab, num_hab)
 
         if hab is None:
-            print("  Error: la habitacion "
-                  + str(num_hab) + " no existe.")
+            interfaz.error("La habitacion " + str(num_hab)
+                           + " no existe.")
+            interfaz.info("Numeros validos: "
+                          + texto_numeros_habitacion(
+                              lista_hab))
         elif hab["estado"] != "disponible":
-            print("  Error: la habitacion "
-                  + str(num_hab) + " no esta"
-                  " disponible (estado: "
-                  + hab["estado"] + ").")
+            interfaz.error("La habitacion " + str(num_hab)
+                           + " no esta disponible (estado: "
+                           + hab["estado"] + ").")
         elif tipo_elegido != "":
             if hab["tipo"] != tipo_elegido:
-                print("  Error: la habitacion "
-                      + str(num_hab)
-                      + " es de tipo '"
-                      + hab["tipo"] + "', no '"
-                      + tipo_elegido + "'.")
+                interfaz.error("La habitacion "
+                               + str(num_hab)
+                               + " es de tipo '"
+                               + hab["tipo"] + "', no '"
+                               + tipo_elegido + "'.")
             else:
                 habitacion_valida = True
         else:
             habitacion_valida = True
 
     # 6. Solicitar cantidad de noches
-    noches = pedir_entero(
-        "  Cantidad de noches (1-30)", 1, 30
-    )
+    noches = pedir_entero("Cantidad de noches (1-30)",
+                          1, 30)
 
     # Verificar cancelacion
     if noches is None:
@@ -157,24 +159,23 @@ def hacer_checkin(lista_reservas, lista_huespedes,
     monto_total = hab["precio_noche"] * noches
 
     # 7. Confirmar reserva
-    print("\n  --- Resumen de reserva ---")
-    print("  Huesped: " + huesped["nombre"]
-          + " (DNI: " + dni + ")")
-    print("  Habitacion: " + str(num_hab)
-          + " (" + hab["tipo"] + ")")
-    print("  Noches: " + str(noches))
-    print("  Precio/noche: $"
-          + str(int(hab["precio_noche"])))
-    print("  Monto total estimado: $"
-          + str(int(monto_total)))
-    print("  ---------------------------")
+    interfaz.subtitulo("RESUMEN DE RESERVA")
+    print()
+    interfaz.item("Huesped", huesped["nombre"]
+                  + " (DNI: " + dni + ")")
+    interfaz.item("Habitacion", str(num_hab)
+                  + " (" + hab["tipo"] + ")")
+    interfaz.item("Noches", str(noches))
+    interfaz.item("Precio/noche",
+                  "$" + str(int(hab["precio_noche"])))
+    interfaz.item("Monto total estimado",
+                  "$" + str(int(monto_total)))
+    print()
 
-    confirmado = confirmar_accion(
-        "  Confirmar check-in?"
-    )
+    confirmado = confirmar_accion("Confirmar check-in?")
 
     if not confirmado:
-        print("  Check-in cancelado.")
+        interfaz.info("Check-in cancelado.")
         return False
 
     # 8. Crear reserva y actualizar estado habitacion
@@ -191,8 +192,9 @@ def hacer_checkin(lista_reservas, lista_huespedes,
     lista_reservas.append(nueva_reserva)
     cambiar_estado(lista_hab, num_hab, "ocupada")
 
-    print("\n  Check-in realizado exitosamente.")
-    print("  ID de reserva: " + str(id_reserva))
+    print()
+    interfaz.exito("Check-in realizado exitosamente.")
+    interfaz.item("ID de reserva", str(id_reserva))
     return True
 
 
@@ -200,12 +202,11 @@ def hacer_checkout(lista_reservas, lista_hab,
                    lista_huespedes):
     """Check-out: finaliza una reserva activa.
     Calcula monto, libera habitacion, muestra factura."""
-    print("\n" + "=" * 50)
-    print("           CHECK-OUT")
-    print("=" * 50)
+    interfaz.titulo("CHECK-OUT")
 
     # Solicitar DNI del huesped
-    dni = pedir_dni("  DNI del huesped")
+    print()
+    dni = pedir_dni("DNI del huesped")
 
     # Verificar cancelacion
     if dni is None:
@@ -213,8 +214,8 @@ def hacer_checkout(lista_reservas, lista_hab,
 
     huesped = buscar_huesped(lista_huespedes, dni)
     if huesped is None:
-        print("  Error: no se encontro huesped con"
-              " DNI " + dni + ".")
+        interfaz.error("No se encontro huesped con DNI "
+                       + dni + ".")
         return False
 
     # Buscar reserva activa del huesped
@@ -229,8 +230,8 @@ def hacer_checkout(lista_reservas, lista_hab,
         i += 1
 
     if not encontrada:
-        print("  Error: el huesped no tiene una"
-              " reserva activa.")
+        interfaz.error("El huesped no tiene una reserva"
+                       " activa.")
         return False
 
     # Obtener datos de la habitacion
@@ -244,29 +245,26 @@ def hacer_checkout(lista_reservas, lista_hab,
                    * reserva_activa["noches"])
 
     # Mostrar factura
-    print("\n  " + "=" * 40)
-    print("          FACTURA DE ESTADIA")
-    print("  " + "=" * 40)
-    print("  Huesped: " + huesped["nombre"])
-    print("  DNI: " + dni)
-    print("  Habitacion: "
-          + str(reserva_activa["numero_habitacion"])
-          + " (" + hab["tipo"] + ")")
-    print("  Noches: "
-          + str(reserva_activa["noches"]))
-    print("  Precio por noche: $"
-          + str(int(hab["precio_noche"])))
-    print("  " + "-" * 40)
-    print("  TOTAL A PAGAR: $"
-          + str(int(monto_total)))
-    print("  " + "=" * 40)
+    interfaz.subtitulo("FACTURA DE ESTADIA")
+    print()
+    interfaz.item("Huesped", huesped["nombre"])
+    interfaz.item("DNI", dni)
+    interfaz.item("Habitacion",
+                  str(reserva_activa["numero_habitacion"])
+                  + " (" + hab["tipo"] + ")")
+    interfaz.item("Noches", str(reserva_activa["noches"]))
+    interfaz.item("Precio por noche",
+                  "$" + str(int(hab["precio_noche"])))
+    print()
+    print("  " + interfaz.c(
+        "TOTAL A PAGAR: $" + str(int(monto_total)),
+        interfaz.VERDE, interfaz.NEGRITA))
+    print()
 
-    confirmado = confirmar_accion(
-        "\n  Confirmar check-out?"
-    )
+    confirmado = confirmar_accion("Confirmar check-out?")
 
     if not confirmado:
-        print("  Check-out cancelado.")
+        interfaz.info("Check-out cancelado.")
         return False
 
     # Finalizar reserva y liberar habitacion
@@ -277,63 +275,65 @@ def hacer_checkout(lista_reservas, lista_hab,
         "disponible"
     )
 
-    print("\n  Check-out realizado exitosamente.")
-    print("  Habitacion "
-          + str(reserva_activa["numero_habitacion"])
-          + " liberada.")
+    print()
+    interfaz.exito("Check-out realizado exitosamente.")
+    interfaz.item("Habitacion liberada",
+                  str(reserva_activa["numero_habitacion"]))
     return True
 
 
 def mostrar_reservas(lista_reservas, lista_huespedes):
-    """Muestra todas las reservas. Usa for + if-elif
-    para distinguir activas de finalizadas."""
-    print("\n" + "=" * 60)
-    print("            LISTADO DE RESERVAS")
-    print("=" * 60)
+    """Muestra todas las reservas en una tabla. Usa for
+    + if para distinguir activas de finalizadas."""
+    interfaz.subtitulo("LISTADO DE RESERVAS")
 
     if len(lista_reservas) == 0:
-        print("  No hay reservas registradas.")
+        print()
+        interfaz.info("No hay reservas registradas.")
         print()
         return
 
-    cont = 0  # contador
-    print("{:<6} {:<12} {:<20} {:<6} {:<6} {:<12}".format(
-        "ID", "DNI", "Huesped", "Hab.", "Noch.",
-        "Estado"))
-    print("-" * 60)
+    anchos = [5, 12, 20, 7, 7, 12]
+    print()
+    interfaz.tabla_borde_superior(anchos)
+    interfaz.tabla_encabezado(
+        ["ID", "DNI", "Huesped", "Hab.", "Noch.",
+         "Estado"], anchos
+    )
+    interfaz.tabla_borde_medio(anchos)
 
+    cont = 0  # contador
     for reserva in lista_reservas:
         cont += 1
         # Buscar nombre del huesped
         huesped = buscar_huesped(
-            lista_huespedes,
-            reserva["dni_huesped"]
+            lista_huespedes, reserva["dni_huesped"]
         )
         if huesped is not None:
             nombre = huesped["nombre"]
         else:
             nombre = "(desconocido)"
 
-        # Indicador visual segun estado
+        # Indicador y color segun estado
         if reserva["estado"] == "activa":
-            indicador = "[ACTIVA]"
+            etiqueta = "activa"
+            color = interfaz.VERDE
         else:
-            indicador = "[FIN]"
+            etiqueta = "finalizada"
+            color = interfaz.GRIS
 
-        # Recortar nombre si es muy largo
-        if len(nombre) > 18:
-            nombre = nombre[:18]
-
-        print("{:<6} {:<12} {:<20} {:<6} {:<6} {}".format(
+        interfaz.tabla_fila([
             reserva["id_reserva"],
             reserva["dni_huesped"],
             nombre,
             reserva["numero_habitacion"],
             reserva["noches"],
-            indicador))
+            etiqueta
+        ], anchos, color)
 
-    print("-" * 60)
-    print("  Total de reservas: " + str(cont))
+    interfaz.tabla_borde_inferior(anchos)
+    print("  Total de reservas: "
+          + interfaz.c(str(cont), interfaz.NEGRITA))
     print()
 
 
@@ -344,12 +344,15 @@ def mostrar_reservas_activas(lista_reservas,
     hay_activas = False  # bandera
     cont_activas = 0  # contador
 
-    print("\n" + "=" * 55)
-    print("          RESERVAS ACTIVAS")
-    print("=" * 55)
-    print("{:<6} {:<12} {:<22} {:<6} {:<6}".format(
-        "ID", "DNI", "Huesped", "Hab.", "Noches"))
-    print("-" * 55)
+    interfaz.subtitulo("RESERVAS ACTIVAS")
+
+    anchos = [5, 12, 22, 7, 8]
+    print()
+    interfaz.tabla_borde_superior(anchos)
+    interfaz.tabla_encabezado(
+        ["ID", "DNI", "Huesped", "Hab.", "Noches"], anchos
+    )
+    interfaz.tabla_borde_medio(anchos)
 
     for reserva in lista_reservas:
         if reserva["estado"] == "activa":
@@ -357,29 +360,27 @@ def mostrar_reservas_activas(lista_reservas,
             cont_activas += 1
 
             huesped = buscar_huesped(
-                lista_huespedes,
-                reserva["dni_huesped"]
+                lista_huespedes, reserva["dni_huesped"]
             )
             if huesped is not None:
                 nombre = huesped["nombre"]
             else:
                 nombre = "(desconocido)"
 
-            if len(nombre) > 20:
-                nombre = nombre[:20]
-
-            print("{:<6} {:<12} {:<22} {:<6} {:<6}".format(
+            interfaz.tabla_fila([
                 reserva["id_reserva"],
                 reserva["dni_huesped"],
                 nombre,
                 reserva["numero_habitacion"],
-                reserva["noches"]))
+                reserva["noches"]
+            ], anchos, interfaz.VERDE)
 
-    print("-" * 55)
+    interfaz.tabla_borde_inferior(anchos)
 
     if not hay_activas:
-        print("  No hay reservas activas.")
+        interfaz.info("No hay reservas activas.")
     else:
         print("  Total activas: "
-              + str(cont_activas))
+              + interfaz.c(str(cont_activas),
+                           interfaz.NEGRITA))
     print()
